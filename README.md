@@ -120,3 +120,7 @@ black plugins tests && isort plugins tests && flake8 plugins tests
 Die Entwicklungsumgebung (Devcontainer mit Checkmk-Site) basiert auf
 [checkmk-plugin-template](https://github.com/chexma/checkmk-plugin-template)
 und ist nicht Teil dieses Repos.
+
+## Lizenz
+
+GNU General Public License v3.0, siehe [LICENSE](LICENSE).
