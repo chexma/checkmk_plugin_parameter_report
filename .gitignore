@@ -1,0 +1,39 @@
+# Local development environment (devcontainer from checkmk-plugin-template),
+# kept on this machine only
+/.devcontainer/
+/.claude/
+/.github/
+/.superpowers/
+CLAUDE.md
+CLAUDE.local.md
+# Empty bind-mount sources the devcontainer needs (initializeCommand creates them)
+/agents/
+/lib/*
+!/lib/gui/
+/lib/gui/*
+!/lib/gui/plugins/
+/lib/gui/plugins/*
+!/lib/gui/plugins/wato/
+/lib/gui/plugins/wato/*
+!/lib/gui/plugins/wato/parameter_report.py
+/nagios_plugins/
+/plugins_legacy/
+
+# Scratch space (test data, agent output, archived design docs)
+/temp/
+
+# Python / tooling
+__pycache__/
+*.pyc
+.pytest_cache/
+.coverage
+htmlcov/
+
+# OS cruft
+.DS_Store
+
+# Built MKPs
+/*.mkp
+
+# Fake sendmail of the site tests (bin/ is ~/local/bin in the site)
+/bin/sendmail

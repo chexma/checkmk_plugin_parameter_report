@@ -1,0 +1,4 @@
+# Scripts run on the Linux Checkmk server: keep LF even on Windows checkouts
+*.sh                text eol=lf
+bin/*               text eol=lf
+*.mkp               binary

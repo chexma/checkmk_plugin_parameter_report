@@ -1,0 +1,45 @@
+{'author': 'Andre Eckstein <chexma@gmx.de>',
+ 'description': 'cmk-parameter-report: PDF (A4 landscape) with all hosts of '
+                'the site and the effective parameters of all services. Values '
+                'changed by rules are highlighted. Settings (with optional '
+                'profiles, schedules and mail) on the web page or in '
+                '~/etc/parameter_report.toml; run as site user: '
+                'cmk-parameter-report [--profile NAME | --config FILE]\n'
+                '\n'
+                'Uses Checkmk internals (cmk.base), therefore limited to '
+                '2.5.x; after an upgrade test first, then raise '
+                'version.usable_until. Web page: Setup > Maintenance > Check '
+                'Parameter Report (admins).',
+ 'download_url': '',
+ 'files': {'bin': ['cmk-parameter-report'],
+           'cmk_addons_plugins': ['parameter_report/gui/__init__.py',
+                                  'parameter_report/gui/common.py',
+                                  'parameter_report/gui/config_page.py',
+                                  'parameter_report/gui/create_page.py',
+                                  'parameter_report/gui/pages.py',
+                                  'parameter_report/lib/__init__.py',
+                                  'parameter_report/lib/cli.py',
+                                  'parameter_report/lib/collector.py',
+                                  'parameter_report/lib/config_file.py',
+                                  'parameter_report/lib/gui_backend.py',
+                                  'parameter_report/lib/i18n.py',
+                                  'parameter_report/lib/locales/de.toml',
+                                  'parameter_report/lib/locales/en.toml',
+                                  'parameter_report/lib/mailer.py',
+                                  'parameter_report/lib/model.py',
+                                  'parameter_report/lib/profiles.py',
+                                  'parameter_report/lib/render.py',
+                                  'parameter_report/lib/render_canvas.py',
+                                  'parameter_report/lib/report.py',
+                                  'parameter_report/lib/runstate.py',
+                                  'parameter_report/lib/schedule_config.py',
+                                  'parameter_report/lib/schedules.py',
+                                  'parameter_report/lib/settings.py',
+                                  'parameter_report/lib/toc.py'],
+           'gui': ['wato/parameter_report.py']},
+ 'name': 'parameter_report',
+ 'title': 'Check Parameter Report',
+ 'version': '0.1.0',
+ 'version.min_required': '2.5.0',
+ 'version.packaged': 'cmk-mkp-tool 3.0.0',
+ 'version.usable_until': '2.6.0'}

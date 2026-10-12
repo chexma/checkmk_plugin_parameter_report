@@ -1,0 +1,9 @@
+#!/usr/bin/env python3
+"""Checkmk parameter report: PDF with the effective parameters of all hosts."""
+
+import sys
+
+from cmk_addons.plugins.parameter_report.lib.cli import main
+
+if __name__ == "__main__":
+    sys.exit(main())
