@@ -1,71 +1,69 @@
 # Check Parameter Report
 
-`cmk-parameter-report` schreibt ein PDF (A4 quer) mit allen Hosts einer
-Checkmk-Site und den **effektiven Parametern aller Services**: Adressen,
-Tags, Labels, Gruppen, Datenquellen und pro Service die wirksamen
-Check-Parameter. Per Regel vom Plugin-Default abweichende Werte sind
-gelb hinterlegt.
+A Checkmk extension that documents how a site is actually monitored: one PDF
+with every host and the **effective check parameters of every service**,
+i.e. the thresholds and options that result from all rules, discovery and
+plugin defaults together.
 
-Die Checkmk-Konfiguration wird nur einmal geladen. Für 1.000 Hosts dauert
-ein Lauf rund 30 Sekunden (Devcontainer, emuliert) statt ca. 40 Minuten mit
-`cmk -D` pro Host. Alle Varianten und Layout-Werte stehen in einer zentralen
-Konfigurationsdatei `~/etc/parameter_report.toml` (Basis) und optionale
-Profile `~/etc/parameter_report.d/<name>.toml`, die auf der Webseite
-gepflegt werden.
+In Checkmk this information is only visible one service at a time (or one
+host at a time with `cmk -D`). The report puts it into a single document
+that can be read, searched, archived and handed over:
 
-Admins erstellen Reports auch über die Webseite *Setup › Maintenance ›
-Check Parameter Report*: eigene Konfigurationsseite für Basis und Profile,
-Seite *Create report* (Profil wählen, starten), Fortschritt, Abbrechen,
-Download und Löschen. Ein Lauf nutzt immer die gespeicherten Einstellungen
-von Basis bzw. Profil. Basis und Profile können einen Zeitplan und Empfänger haben: der
-Report entsteht automatisch und geht als PDF per Mail raus (sendmail wie bei
-Checkmk-Benachrichtigungen). Programmtexte sind englisch.
+- **Documentation and handover:** show a customer or another team what is
+  monitored and with which thresholds, with a cover page, a table of
+  contents and a bookmark per host.
+- **Audits and reviews:** values that a rule changed are highlighted, so
+  deviations from the plugin defaults stand out; an optional mode lists only
+  these changed parameters.
+- **Keeping track of changes:** reports are created on a schedule and sent
+  by mail, so there is a dated record of the configuration.
 
-Getestet mit Checkmk 2.5.0p15 Ultimate. Benötigt nur Pakete aus der
-Site-Python (reportlab, pypdf).
+Besides the parameters, every host page lists addresses, tags, labels,
+groups, parents or cluster nodes and data sources. Passwords are never
+printed.
 
-## Nutzung
+## Features
 
-Als Site-User:
+- Command `cmk-parameter-report` and web pages under *Setup › Maintenance ›
+  Check Parameter Report* (for admins): create reports, follow the progress,
+  cancel, download, delete.
+- Host selection by Setup folder, host tag and host label.
+- Base configuration plus profiles (e.g. one per customer) that only contain
+  the differences; edited on the web page or as TOML files.
+- Schedules per base/profile and mail with the PDF attached (sendmail, as for
+  Checkmk notifications).
+- Time-specific parameters with an appendix of the time periods used.
+- PDF and mail texts in English or German, selectable date format; page
+  size, columns, fonts and cover page texts are configurable.
+- Fast: the Checkmk configuration is loaded only once and the pages are
+  rendered in parallel. A run for 1,000 hosts takes about 30 seconds (in an
+  emulated devcontainer) instead of about 40 minutes with `cmk -D` per host.
 
-```bash
-cmk-parameter-report                      # Einstellungen aus ~/etc/parameter_report.toml
-cmk-parameter-report --profile kunde_a    # Basis + ~/etc/parameter_report.d/kunde_a.toml
-cmk-parameter-report --config ~/etc/parameter_report_linux.toml -v
-```
-
-Alle Einstellungen, Konfigurationsdatei, Statusdatei, Exit-Codes, Cron-Beispiel
-und Messwerte: [docs/parameter_report.md](docs/parameter_report.md).
+Tested with Checkmk 2.5.0p15 Ultimate. Needs only packages of the site's
+Python (reportlab, pypdf).
 
 ## Installation
 
-Als MKP (Checkmk 2.5.x; ab 2.6 deaktiviert Checkmk das Paket, bis es dort
-getestet und `version.usable_until` angehoben ist):
+See [docs/installation.md](docs/installation.md).
+
+## Usage
+
+On the web page, or as the site user:
 
 ```bash
-mkp add parameter_report-<version>.mkp       # z. B. parameter_report-0.1.0.mkp
-mkp enable parameter_report <version>
-omd reload apache   # lädt die Webseite
-omd restart ui-job-scheduler   # Zeitpläne: der Scheduler lädt Plugins nur beim Start
+cmk-parameter-report                        # settings from ~/etc/parameter_report.toml
+cmk-parameter-report --profile customer_a   # base + ~/etc/parameter_report.d/customer_a.toml
+cmk-parameter-report --config ~/etc/parameter_report_linux.toml -v
 ```
 
-Oder in der GUI unter *Setup › Maintenance › Extension packages*.
+All settings, the web pages, profiles, schedules and mail, status file, exit
+codes, cron examples and measurements:
+[docs/parameter_report.md](docs/parameter_report.md).
 
-Das Paket enthält:
+## Building the package
 
-| Repo | Site |
-|---|---|
-| `plugins/parameter_report/lib/` | `~/local/lib/python3/cmk_addons/plugins/parameter_report/lib/` |
-| `plugins/parameter_report/gui/` | `~/local/lib/python3/cmk_addons/plugins/parameter_report/gui/` |
-| `lib/gui/plugins/wato/parameter_report.py` | `~/local/lib/python3/cmk/gui/plugins/wato/parameter_report.py` (Ladedatei der Webseite) |
-| `bin/cmk-parameter-report` | `~/local/bin/cmk-parameter-report` |
-
-reportlab und pypdf sind Teil von Checkmk und daher nicht im Paket.
-
-## Paket bauen
-
-Manifest ist die Datei `package`. Als Site-User mit dem Repo als
-Arbeitsverzeichnis (z. B. im Devcontainer):
+The manifest is the file `package`. As the site user with the repository as
+the working directory (e.g. in the devcontainer):
 
 ```bash
 ln -sfn "$PWD/package" ~/var/check_mk/packages/parameter_report
@@ -73,54 +71,54 @@ mkp package ~/var/check_mk/packages/parameter_report
 cp ~/var/check_mk/packages_local/parameter_report-<version>.mkp .
 ```
 
-Neue Dateien in `plugins/parameter_report/` (`.py`, `.toml`) müssen ins Manifest;
-`tests/test_package.py` schlägt sonst fehl. Vor jedem Build `version`
-in `package` und `Changelog.md` anpassen.
+New files in `plugins/parameter_report/` (`.py`, `.toml`) must be added to
+the manifest; otherwise `tests/test_package.py` fails. Before every build
+update `version` in `package` and `Changelog.md`.
 
-## Aufbau
+## Layout
 
-| Datei | Aufgabe |
+| File | Purpose |
 |---|---|
-| `plugins/parameter_report/lib/collector.py` | lädt die Konfiguration, einziges Modul mit Checkmk-Interna |
-| `plugins/parameter_report/lib/model.py` | Datenklassen, Herkunft der Parameter (Default, Discovery, Regel) |
-| `plugins/parameter_report/lib/settings.py` | alle Einstellungen: Standardwerte, Prüfung |
-| `plugins/parameter_report/lib/config_file.py` | Konfigurationsdatei lesen, schreiben (atomar, `.bak`) |
-| `plugins/parameter_report/lib/profiles.py` | Profile: Namen, Vererbung, Anlegen, Kopieren, Umbenennen, Löschen |
-| `plugins/parameter_report/lib/schedule_config.py` | Zeitplan und Mail-Einstellungen: Perioden, Adressen, Prüfung |
-| `plugins/parameter_report/lib/schedules.py` | Zustand, Fälligkeit, Start geplanter Läufe (GUI-frei) |
-| `plugins/parameter_report/lib/mailer.py` | Mail bauen und über sendmail verschicken |
-| `plugins/parameter_report/lib/render_canvas.py` | Host-Seiten, direkt auf die PDF-Seite gezeichnet |
-| `plugins/parameter_report/lib/render.py` | Deckblatt, Anhang „Zeiträume“ und gemeinsame Texte |
-| `plugins/parameter_report/lib/toc.py` | Inhaltsverzeichnis (Layout, Zeichnen, Link-Positionen) |
-| `plugins/parameter_report/lib/i18n.py`, `lib/locales/*.toml` | Texte von PDF und Mail je Sprache (en, de), Datumsformate |
-| `plugins/parameter_report/lib/report.py` | paralleles Rendern in Blöcken, Zusammenfügen mit pypdf |
-| `plugins/parameter_report/lib/runstate.py` | Sperre, Statusdatei, Metadaten, Aufbewahrung, Abbruch |
-| `plugins/parameter_report/lib/cli.py` | Kommandozeile, Ablauf, Exit-Codes |
-| `plugins/parameter_report/lib/gui_backend.py` | Logik der Webseite (Formular, Start, Status, Liste) |
-| `plugins/parameter_report/gui/pages.py` | Report-Seite (Checkmk-GUI-Interna) |
-| `plugins/parameter_report/gui/create_page.py` | Seite *Create report* (Profil wählen, Lauf starten) |
-| `plugins/parameter_report/gui/config_page.py` | Konfigurationsseite (Basis und Profile) |
-| `plugins/parameter_report/gui/common.py` | gemeinsame Teile beider Seiten |
-| `lib/gui/plugins/wato/parameter_report.py` | Ladedatei der Webseite |
+| `plugins/parameter_report/lib/collector.py` | loads the configuration; the only module with Checkmk internals |
+| `plugins/parameter_report/lib/model.py` | data classes, origin of the parameters (default, discovery, rule) |
+| `plugins/parameter_report/lib/settings.py` | all settings: defaults, validation |
+| `plugins/parameter_report/lib/config_file.py` | read and write the configuration file (atomic, `.bak`) |
+| `plugins/parameter_report/lib/profiles.py` | profiles: names, inheritance, create, copy, rename, delete |
+| `plugins/parameter_report/lib/schedule_config.py` | schedule and mail settings: periods, addresses, validation |
+| `plugins/parameter_report/lib/schedules.py` | state, due check, start of scheduled runs (no GUI imports) |
+| `plugins/parameter_report/lib/mailer.py` | build the mail and send it via sendmail |
+| `plugins/parameter_report/lib/render_canvas.py` | host pages, drawn directly on the PDF page |
+| `plugins/parameter_report/lib/render.py` | cover page, appendix "Time periods" and shared texts |
+| `plugins/parameter_report/lib/toc.py` | table of contents (layout, drawing, link positions) |
+| `plugins/parameter_report/lib/i18n.py`, `lib/locales/*.toml` | texts of PDF and mail per language (en, de), date formats |
+| `plugins/parameter_report/lib/report.py` | parallel rendering in chunks, merging with pypdf |
+| `plugins/parameter_report/lib/runstate.py` | lock, status file, metadata, retention, cancel |
+| `plugins/parameter_report/lib/cli.py` | command line, run sequence, exit codes |
+| `plugins/parameter_report/lib/gui_backend.py` | logic of the web pages (forms, start, status, list) |
+| `plugins/parameter_report/gui/pages.py` | report page (Checkmk GUI internals) |
+| `plugins/parameter_report/gui/create_page.py` | page *Create report* (choose a profile, start the run) |
+| `plugins/parameter_report/gui/config_page.py` | configuration page (base and profiles) |
+| `plugins/parameter_report/gui/common.py` | parts shared by the pages |
+| `lib/gui/plugins/wato/parameter_report.py` | loader of the web pages |
 
-Nach einem Checkmk-Update zuerst die Integrationstests laufen lassen
-(`pytest -m site`); Änderungen an den Interna zeigen sich in `collector.py`.
+After a Checkmk update run the integration tests first (`pytest -m site`);
+changes to the internals show up in `collector.py`.
 
-## Entwicklung
+## Development
 
-Tests laufen als Site-User mit der Site-Python:
+Tests run as the site user with the site's Python:
 
 ```bash
-pytest                                   # Unit-Tests; Site-Tests ohne Testhosts übersprungen
-tests/fixtures/create_test_hosts.sh      # 1.000 Testhosts im Ordner /spike anlegen
-pytest -m site                           # Integrationstests gegen die Site
+pytest                                   # unit tests; site tests are skipped without the test hosts
+tests/fixtures/create_test_hosts.sh      # create 1,000 test hosts in the folder /spike
+pytest -m site                           # integration tests against the site
 black plugins tests && isort plugins tests && flake8 plugins tests
 ```
 
-Die Entwicklungsumgebung (Devcontainer mit Checkmk-Site) basiert auf
+The development environment (devcontainer with a Checkmk site) is based on
 [checkmk-plugin-template](https://github.com/chexma/checkmk-plugin-template)
-und ist nicht Teil dieses Repos.
+and is not part of this repository.
 
-## Lizenz
+## License
 
-GNU General Public License v3.0, siehe [LICENSE](LICENSE).
+GNU General Public License v3.0, see [LICENSE](LICENSE).

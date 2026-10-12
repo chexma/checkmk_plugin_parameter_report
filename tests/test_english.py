@@ -1,4 +1,4 @@
-"""Product code and package description must be English (docs stay German)."""
+"""Product code and package description must be English."""
 
 import ast
 import re

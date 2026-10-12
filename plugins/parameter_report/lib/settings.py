@@ -62,7 +62,7 @@ def check_address(value: str, field: str) -> str:
 
 def default_workers() -> int:
     # At most 2: beyond that the render phase needs more memory than collecting
-    # the configuration, for a few seconds less runtime (see docs, Messwerte)
+    # the configuration, for a few seconds less runtime (see docs, Measurements)
     return min(2, max(1, (os.cpu_count() or 2) // 2))
 
 
