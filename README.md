@@ -60,50 +60,6 @@ All settings, the web pages, profiles, schedules and mail, status file, exit
 codes, cron examples and measurements:
 [docs/parameter_report.md](docs/parameter_report.md).
 
-## Building the package
-
-The manifest is the file `package`. As the site user with the repository as
-the working directory (e.g. in the devcontainer):
-
-```bash
-ln -sfn "$PWD/package" ~/var/check_mk/packages/parameter_report
-mkp package ~/var/check_mk/packages/parameter_report
-cp ~/var/check_mk/packages_local/parameter_report-<version>.mkp .
-```
-
-New files in `plugins/parameter_report/` (`.py`, `.toml`) must be added to
-the manifest; otherwise `tests/test_package.py` fails. Before every build
-update `version` in `package` and `Changelog.md`.
-
-## Layout
-
-| File | Purpose |
-|---|---|
-| `plugins/parameter_report/lib/collector.py` | loads the configuration; the only module with Checkmk internals |
-| `plugins/parameter_report/lib/model.py` | data classes, origin of the parameters (default, discovery, rule) |
-| `plugins/parameter_report/lib/settings.py` | all settings: defaults, validation |
-| `plugins/parameter_report/lib/config_file.py` | read and write the configuration file (atomic, `.bak`) |
-| `plugins/parameter_report/lib/profiles.py` | profiles: names, inheritance, create, copy, rename, delete |
-| `plugins/parameter_report/lib/schedule_config.py` | schedule and mail settings: periods, addresses, validation |
-| `plugins/parameter_report/lib/schedules.py` | state, due check, start of scheduled runs (no GUI imports) |
-| `plugins/parameter_report/lib/mailer.py` | build the mail and send it via sendmail |
-| `plugins/parameter_report/lib/render_canvas.py` | host pages, drawn directly on the PDF page |
-| `plugins/parameter_report/lib/render.py` | cover page, appendix "Time periods" and shared texts |
-| `plugins/parameter_report/lib/toc.py` | table of contents (layout, drawing, link positions) |
-| `plugins/parameter_report/lib/i18n.py`, `lib/locales/*.toml` | texts of PDF and mail per language (en, de), date formats |
-| `plugins/parameter_report/lib/report.py` | parallel rendering in chunks, merging with pypdf |
-| `plugins/parameter_report/lib/runstate.py` | lock, status file, metadata, retention, cancel |
-| `plugins/parameter_report/lib/cli.py` | command line, run sequence, exit codes |
-| `plugins/parameter_report/lib/gui_backend.py` | logic of the web pages (forms, start, status, list) |
-| `plugins/parameter_report/gui/pages.py` | report page (Checkmk GUI internals) |
-| `plugins/parameter_report/gui/create_page.py` | page *Create report* (choose a profile, start the run) |
-| `plugins/parameter_report/gui/config_page.py` | configuration page (base and profiles) |
-| `plugins/parameter_report/gui/common.py` | parts shared by the pages |
-| `lib/gui/plugins/wato/parameter_report.py` | loader of the web pages |
-
-After a Checkmk update run the integration tests first (`pytest -m site`);
-changes to the internals show up in `collector.py`.
-
 ## Development
 
 Tests run as the site user with the site's Python:
@@ -114,6 +70,9 @@ tests/fixtures/create_test_hosts.sh      # create 1,000 test hosts in the folder
 pytest -m site                           # integration tests against the site
 black plugins tests && isort plugins tests && flake8 plugins tests
 ```
+
+After a Checkmk update run the integration tests first (`pytest -m site`);
+changes to the internals show up in `collector.py`.
 
 The development environment (devcontainer with a Checkmk site) is based on
 [checkmk-plugin-template](https://github.com/chexma/checkmk-plugin-template)
