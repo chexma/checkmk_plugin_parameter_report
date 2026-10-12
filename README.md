@@ -42,6 +42,18 @@ printed.
 Tested with Checkmk 2.5.0p15 Ultimate. Needs only packages of the site's
 Python (reportlab, pypdf).
 
+## Important notes
+
+- **Checkmk internals:** the project imports internal Checkmk modules that
+  are not official APIs and can change with any Checkmk release. It
+  therefore has to be adapted and tested before every Checkmk major release,
+  and the version of the extension must match your Checkmk version. The
+  package is limited to Checkmk 2.5.x; Checkmk disables it on newer
+  versions until a matching release is installed.
+- **Single sites only:** distributed monitoring is currently not supported.
+  A report contains only the hosts of the site it runs on, not the hosts of
+  remote sites.
+
 ## Installation
 
 See [docs/installation.md](docs/installation.md).
